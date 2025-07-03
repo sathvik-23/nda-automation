@@ -187,6 +187,17 @@ class NDAAgent:
                 }
             ),
             Function(
+                name="create_and_send_nda",
+                description="Phase 2: Create document and send for signature in one step",
+                entrypoint=self.create_and_send_nda,
+                parameters={
+                    "name": {"type": "string", "description": "Document name"},
+                    "template_id": {"type": "string", "description": "Template UUID"},
+                    "recipient": {"type": "object", "description": "Recipient information dict"},
+                    "tokens": {"type": "array", "description": "List of token name-value pairs"}
+                }
+            ),
+            Function(
                 name="get_nda_statistics",
                 description="Get NDA statistics and recent activity",
                 entrypoint=self.get_nda_statistics,
@@ -294,6 +305,61 @@ class NDAAgent:
         except Exception as e:
             logger.error(f"Error in NDA workflow: {e}")
             return {"success": False, "error": str(e)}
+    
+    def create_and_send_nda(self, name: str, template_id: str, recipient: Dict[str, Any], tokens: List[Dict[str, str]]) -> Dict[str, Any]:
+        """
+        Phase 2: Complete NDA workflow - Create document and send for signature.
+        
+        Args:
+            name: Document name
+            template_id: Template UUID
+            recipient: Recipient information dict
+            tokens: List of token name-value pairs
+            
+        Returns:
+            Dict containing complete workflow result
+        """
+        logger.info(f"Starting Phase 2 NDA workflow for: {name}")
+        
+        try:
+            # Use the enhanced PandaDoc API method
+            result = self.pandadoc_api.create_and_send_nda(name, template_id, recipient, tokens)
+            
+            if result.get("success"):
+                # Log to Google Sheets if available
+                self._log_to_google_sheets(
+                    action_type="workflow_completed",
+                    document_id=result.get("document_id"),
+                    details={
+                        "template_name": name,
+                        "recipient": recipient.get("email"),
+                        "status": "sent",
+                        "workflow_type": "create_and_send",
+                        "phase": "phase_2"
+                    }
+                )
+                
+                # Send notifications if available
+                if result.get("document_id"):
+                    self.notifier.notify_document_created(
+                        document_id=result.get("document_id"),
+                        template_name=name,
+                        recipient=recipient.get("email", "Unknown")
+                    )
+                    
+                    self.notifier.notify_document_sent(
+                        document_id=result.get("document_id"),
+                        template_name=name,
+                        recipient=recipient.get("email", "Unknown")
+                    )
+                
+                logger.info(f"Phase 2 workflow completed successfully for document: {result.get('document_id')}")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error in Phase 2 NDA workflow: {e}")
+            return {"success": False, "error": str(e), "phase": "phase_2"}
     
     def get_nda_statistics(self) -> Dict[str, Any]:
         """Get NDA statistics and recent activity"""
