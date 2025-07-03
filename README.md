@@ -62,10 +62,26 @@ Get your API key from: [PandaDoc Developer Dashboard](https://developers.pandado
 
 #### Google Sheets (Optional)
 ```bash
-GOOGLE_SHEETS_CREDENTIALS_PATH=path/to/credentials.json
-GOOGLE_SHEETS_SPREADSHEET_ID=your_spreadsheet_id
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_PROJECT_ID=your_google_project_id_here
+GOOGLE_SHEETS_SPREADSHEET_ID=your_spreadsheet_id_here
+GOOGLE_SHEETS_RANGE=NDA_Log!A:G
 ```
-Setup guide: [Google Sheets API Quickstart](https://developers.google.com/sheets/api/quickstart/python)
+
+**Setup Instructions:**
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select an existing one
+3. Enable the Google Sheets API:
+   - Go to "APIs & Services" > "Enable APIs and Services"
+   - Search for "Google Sheets API" and enable it
+4. Create OAuth 2.0 credentials:
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth client ID"
+   - Configure OAuth consent screen if needed
+   - Add `http://localhost:8080` as a redirect URI
+   - You'll receive Client ID and Client Secret
+5. Create a Google Sheet and copy its ID from the URL
 
 #### Email Notifications (Optional)
 ```bash

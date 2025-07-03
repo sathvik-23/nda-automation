@@ -148,6 +148,11 @@ tmp/
 .env.production
 .env.development
 
+# Google OAuth credentials and tokens
+credentials.json
+token.json
+client_secret.json
+
 # Runtime data
 pids/
 logs/
